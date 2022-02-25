@@ -1,0 +1,60 @@
+
+<html>
+    <script>
+        var startTime, endTime;
+
+        function start() {
+        startTime = new Date();
+        };
+
+        function end() {
+        endTime = new Date();
+        var timeDiff = endTime - startTime; //in ms
+        // strip the ms
+        timeDiff /= 1000;
+
+        // get seconds 
+        var seconds = Math.round(timeDiff);
+        console.log(seconds + " seconds");
+        }
+
+        async function sha256(message) {
+            // encode as UTF-8
+            const msgBuffer = new TextEncoder().encode(message);                    
+
+            // hash the message
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
+            // convert ArrayBuffer to Array
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+            // convert bytes to hex string                  
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        (async () => {
+            start();
+            let challenge = 'asdajsbdakjhasdjkh[qowrpoqiwe908120391230981xha0s9d8ah90d 8vasb9dasndm8as9d8';
+            let nonce = 0;
+            let difficulty = 5;
+            while(true){
+                let msg = await sha256(challenge + nonce);
+                let firstX = msg.substring(0, difficulty);
+                if(parseInt(firstX, 16) === 0)
+                {
+                    console.log("Solved!");
+                    console.log(nonce);
+                    end();
+                    break;
+                }
+                nonce++;
+            }
+
+        })().catch(e => {
+            // Deal with the fact the chain failed
+        });
+        
+        
+    </script>
+</html>
